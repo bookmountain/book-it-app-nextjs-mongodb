@@ -26,7 +26,6 @@ class ApiFeature {
 
     const removeFields = ["location", "page"];
     removeFields.forEach((el) => delete queryCopy[el]);
-    console.log("queryCopy", queryCopy);
     this.query = this.query.find(queryCopy);
     return this;
   }
