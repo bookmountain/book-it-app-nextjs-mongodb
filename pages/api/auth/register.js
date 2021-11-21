@@ -1,10 +1,6 @@
 import nc from "next-connect";
 import dbConnect from "../../../config/dbConnect";
-import {
-  getAllRooms,
-  addNewRoom,
-  deleteRoom,
-} from "../../../controllers/roomControllers";
+import { registerUser } from "../../../controllers/authControllers";
 import onError from "../../../middlewares/error";
 
 const handler = nc({
@@ -13,7 +9,6 @@ const handler = nc({
 
 dbConnect();
 
-handler.get(getAllRooms);
-handler.post(addNewRoom);
+handler.post(registerUser);
 
 export default handler;
