@@ -3,15 +3,18 @@ import Link from "next/link";
 import { signIn } from "next-auth/client";
 import { toast } from "react-toastify";
 import { useRouter } from "next/router";
+import ButtonLoader from "../layout/ButtonLoader";
 
 const Login = (props) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const router = useRouter();
 
   const submitHandler = async (e) => {
     e.preventDefault();
+    setLoading(true);
 
     const result = await signIn("credentials", {
       redirect: false,
@@ -19,11 +22,12 @@ const Login = (props) => {
       password,
     });
 
-    console.log(result);
+    setLoading(false);
 
     if (result.error) {
       toast.error(result.error);
     } else {
+      console.log(result);
       router.push("/");
     }
   };
@@ -64,13 +68,14 @@ const Login = (props) => {
               id="login_button"
               type="submit"
               className="btn btn-block py-3"
+              disabled={loading}
             >
-              LOGIN
+              {loading ? <ButtonLoader /> : "LOGIN"}
             </button>
 
-            <a href="#" className="float-right mt-3">
+            <Link href="/register" className="float-right mt-3">
               New User?
-            </a>
+            </Link>
           </form>
         </div>
       </div>

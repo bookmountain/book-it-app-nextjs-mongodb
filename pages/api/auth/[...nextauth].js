@@ -2,6 +2,7 @@ import NextAuth from "next-auth";
 import Providers from "next-auth/providers";
 import User from "../../../models/user";
 import dbConnect from "../../../config/dbConnect";
+import user from "../../../models/user";
 
 export default NextAuth({
   session: {
@@ -35,10 +36,14 @@ export default NextAuth({
   ],
   callbacks: {
     jwt: async (token, user) => {
+      console.log("token", token);
+      console.log("user", user);
       user && (token.user = user);
-      return Promise.resolve(user);
+      return Promise.resolve(token);
     },
     session: async (session, userOrToken) => {
+      console.log("session", session);
+      console.log("userOrToken", userOrToken);
       session.user = userOrToken.user;
       return Promise.resolve(session);
     },

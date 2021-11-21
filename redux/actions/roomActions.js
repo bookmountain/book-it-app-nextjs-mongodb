@@ -17,8 +17,6 @@ export const getRooms =
 
       let link = `${origin}/api/rooms?page=${currentPage}&location=${location}`;
 
-      console.log("guests", guests, "category", category);
-
       if (guests) link = link.concat(`&guestCapacity=${guests}`);
       if (category) link = link.concat(`&category=${category}`);
 
