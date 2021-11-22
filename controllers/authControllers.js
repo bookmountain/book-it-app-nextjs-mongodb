@@ -83,13 +83,13 @@ const updateUserProfile = catchAsyncErrors(async (req, res) => {
 });
 
 // Forgot password user profile => /api/password/forgot
-const forgotPassword = catchAsyncErrors(async (req, res) => {
+const forgotPassword = catchAsyncErrors(async (req, res, next) => {
   const user = await User.findOne({
     email: req.body.email,
   });
 
   if (!user) {
-    return new ErrorHandler("User not found thiw this email", 404);
+    return next(new ErrorHandler("User not found with this email", 404));
   }
   // Get reset token
   const resetToken = user.getResetPasswordToken();
