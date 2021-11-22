@@ -2,6 +2,8 @@ import User from "../models/user";
 import ErrorHandler from "../utils/errorHandler";
 import catchAsyncErrors from "../middlewares/catchAsyncErrors";
 import cloudinary from "cloudinary";
+import absoluteUrl from "next-absolute-url/index";
+import sendEmail from "../utils/sendEmail";
 
 // Setting up cloudinary config
 cloudinary.config({
@@ -44,4 +46,91 @@ const currentUserProfile = catchAsyncErrors(async (req, res) => {
   });
 });
 
-export { registerUser, currentUserProfile };
+// Update user profile => /api/me/update
+const updateUserProfile = catchAsyncErrors(async (req, res) => {
+  const user = await User.findById(req.user._id);
+
+  if (user) {
+    user.name = req.body.name;
+    user.email = req.body.email;
+
+    if (req.body.password) user.password = req.body.password;
+  }
+  // Update avatar
+  if (req.body.avatar !== "") {
+    const image_id = user.avatar.public_id;
+
+    //Delete user previous image/avatar
+    await cloudinary.v2.uploader.destroy(image_id);
+  }
+
+  const result = await cloudinary.v2.uploader.upload(req.body.avatar, {
+    folder: "bookit/avatars",
+    width: "150",
+    crop: "scale",
+  });
+
+  user.avatar = {
+    public_id: result.public_id,
+    url: result.secure_url,
+  };
+
+  // Save in MongoDB
+  await user.save();
+  res.status(200).json({
+    success: true,
+  });
+});
+
+// Forgot password user profile => /api/password/forgot
+const forgotPassword = catchAsyncErrors(async (req, res) => {
+  const user = await User.findOne({
+    email: req.body.email,
+  });
+
+  if (!user) {
+    return new ErrorHandler("User not found thiw this email", 404);
+  }
+  // Get reset token
+  const resetToken = user.getResetPasswordToken();
+
+  await user.save({
+    validateBeforeSave: false,
+  });
+
+  //Get origin
+  const { origin } = absoluteUrl(req);
+  // Create reset password url
+  const resetUrl = `${origin}/password/reset/${resetToken}`;
+
+  const message = `Your password reset url is as follow: \n\n ${resetUrl} \n\n
+  If you have not requested this email, then ignore it.`;
+
+  try {
+    await sendEmail({
+      email: user.email,
+      subject: "BookIT Password Recovery",
+      message,
+    });
+
+    res.status(200).json({
+      success: true,
+      message: `Email sent to ${user.email}`,
+    });
+  } catch (error) {
+    user.resetPasswordToken = undefined;
+    user.resetPasswordExpire = undefined;
+
+    await user.save({
+      validateBeforeSave: false,
+    });
+
+    return next(new ErrorHandler(error.message, 500));
+  }
+
+  res.status(200).json({
+    success: true,
+  });
+});
+
+export { registerUser, currentUserProfile, updateUserProfile, forgotPassword };
