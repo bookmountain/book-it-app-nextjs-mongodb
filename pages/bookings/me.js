@@ -5,7 +5,7 @@ import Layout from "../../components/layout/Layout";
 import { wrapper } from "../../redux/store";
 import { myBookings } from "../../redux/actions/bookingActions";
 
-const MyBookingPage = (props) => {
+const MyBookingPage = () => {
   return (
     <Layout title="My ">
       <MyBookings>User Profile</MyBookings>
@@ -28,12 +28,6 @@ export const getServerSideProps = wrapper.getServerSideProps(
       }
 
       await store.dispatch(myBookings(req.headers.cookie, req));
-
-      return {
-        props: {
-          session,
-        },
-      };
     }
 );
 
