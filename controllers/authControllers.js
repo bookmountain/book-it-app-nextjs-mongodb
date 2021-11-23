@@ -4,6 +4,7 @@ import catchAsyncErrors from "../middlewares/catchAsyncErrors";
 import cloudinary from "cloudinary";
 import absoluteUrl from "next-absolute-url/index";
 import sendEmail from "../utils/sendEmail";
+import crypto from "crypto";
 
 // Setting up cloudinary config
 cloudinary.config({
@@ -133,4 +134,51 @@ const forgotPassword = catchAsyncErrors(async (req, res, next) => {
   });
 });
 
-export { registerUser, currentUserProfile, updateUserProfile, forgotPassword };
+// Reset password user profile => /api/password/reset/:token
+const resetPassword = catchAsyncErrors(async (req, res, next) => {
+  // Hash URL token, get token from URL and hash it and compare with token in DB which is restore
+  // by userSchema.methods.getResetPasswordToken at line 96
+
+  const resetPasswordToken = crypto
+    .createHash("sha256")
+    .update(req.query.token)
+    .digest("hex");
+
+  const user = await User.findOne({
+    resetPasswordToken,
+    // $gt means greater in MongoDB
+    resetPasswordExpire: { $gt: Date.now() },
+  });
+
+  if (!user) {
+    return next(
+      new ErrorHandler(
+        "Password reset token in invalid or has been expired",
+        404
+      )
+    );
+  }
+  if (req.body.password !== req.body.confirmPassword) {
+    return next(new ErrorHandler("Password does not match", 400));
+  }
+
+  // Setup the new password
+  user.password = req.body.password;
+  user.resetPasswordToken = undefined;
+  user.resetPasswordExpire = undefined;
+
+  await user.save();
+
+  res.status(200).json({
+    success: true,
+    message: "Password updated successfully",
+  });
+});
+
+export {
+  registerUser,
+  currentUserProfile,
+  updateUserProfile,
+  forgotPassword,
+  resetPassword,
+};
