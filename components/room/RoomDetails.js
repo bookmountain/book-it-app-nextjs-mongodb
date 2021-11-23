@@ -9,7 +9,10 @@ import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import axios from "axios";
 import { useRouter } from "next/router";
-import { checkBooking } from "../../redux/actions/bookingActions";
+import {
+  checkBooking,
+  getBookedDates,
+} from "../../redux/actions/bookingActions";
 import { CHECK_BOOKING_RESET } from "../../redux/constants/bookingConstants";
 
 const RoomDetails = ({ title }) => {
@@ -25,6 +28,12 @@ const RoomDetails = ({ title }) => {
     (state) => state.checkBooking
   );
   const { user } = useSelector((state) => state.loadedUser);
+  const { dates } = useSelector((state) => state.bookedDates);
+
+  const excludedDates = [];
+  dates.forEach((date) => {
+    excludedDates.push(new Date(date));
+  });
 
   const onChange = (dates) => {
     const [checkInDate, checkOutDate] = dates;
@@ -71,11 +80,10 @@ const RoomDetails = ({ title }) => {
   };
 
   useEffect(() => {
-    if (error) {
-      toast.error("Error occurred.");
-      dispatch(clearErrors());
-    }
-  }, [dispatch, error]);
+    dispatch(getBookedDates(id));
+    toast.error;
+    dispatch(clearErrors());
+  }, [dispatch, id]);
 
   return (
     <>
@@ -136,6 +144,7 @@ const RoomDetails = ({ title }) => {
                 selectsRange
                 inline
                 minDate={new Date()}
+                excludeDates={excludedDates}
               />
               {available === true && (
                 <div className="alert alert-success my-3 font-weight-bold">

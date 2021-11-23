@@ -25,7 +25,7 @@ const newBooking = catchAsyncErrors(async (req, res) => {
     daysOfStay,
     amountPaid,
     paymentInfo,
-    payAt: Date.now(),
+    paidAt: Date.now(),
   });
 
   res.status(200).json({
@@ -107,4 +107,22 @@ const checkBookedDatesOfRoom = catchAsyncErrors(async (req, res) => {
   });
 });
 
-export { newBooking, checkRoomBookingAvailability, checkBookedDatesOfRoom };
+// Get all bookings of current user => /api/bookings/me
+const myBookings = catchAsyncErrors(async (req, res) => {
+  // req.user store by isAuthenticated middleware
+  const bookings = await Booking.find({
+    user: req.user._id,
+  });
+
+  res.status(200).json({
+    success: true,
+    bookings,
+  });
+});
+
+export {
+  newBooking,
+  checkRoomBookingAvailability,
+  checkBookedDatesOfRoom,
+  myBookings,
+};
