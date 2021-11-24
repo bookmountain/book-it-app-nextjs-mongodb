@@ -1,21 +1,21 @@
 import React from "react";
 import { getSession } from "next-auth/client";
-import MyBookings from "../../components/booking/MyBookings";
+import BookingDetails from "../../components/booking/BookingDetails";
 import Layout from "../../components/layout/Layout";
 import { wrapper } from "../../redux/store";
-import { myBookings } from "../../redux/actions/bookingActions";
+import { getBookingDetails } from "../../redux/actions/bookingActions";
 
-const MyBookingPage = () => {
+const BookingDetailsPage = () => {
   return (
-    <Layout title="My Booking">
-      <MyBookings />
+    <Layout title="Booking Details ">
+      <BookingDetails />
     </Layout>
   );
 };
 
 export const getServerSideProps = wrapper.getServerSideProps(
   (store) =>
-    async ({ req }) => {
+    async ({ req, params }) => {
       const session = await getSession({ req });
 
       if (!session) {
@@ -27,8 +27,12 @@ export const getServerSideProps = wrapper.getServerSideProps(
         };
       }
 
-      await store.dispatch(myBookings(req.headers.cookie, req));
+      console.log("params", params);
+
+      await store.dispatch(
+        getBookingDetails(req.headers.cookie, req, params.id)
+      );
     }
 );
 
-export default MyBookingPage;
+export default BookingDetailsPage;

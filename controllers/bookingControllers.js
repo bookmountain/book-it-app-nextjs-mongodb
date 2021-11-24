@@ -112,11 +112,37 @@ const myBookings = catchAsyncErrors(async (req, res) => {
   // req.user store by isAuthenticated middleware
   const bookings = await Booking.find({
     user: req.user._id,
-  });
+  })
+    .populate({
+      path: "room",
+      select: "name pricePerNight images",
+    })
+    .populate({
+      path: "user",
+      select: "name email",
+    });
 
   res.status(200).json({
     success: true,
     bookings,
+  });
+});
+
+// Get bookings details => /api/bookings/:id
+const getBookingDetails = catchAsyncErrors(async (req, res) => {
+  const booking = await Booking.findById(req.query.id)
+    .populate({
+      path: "room",
+      select: "name pricePerNight images",
+    })
+    .populate({
+      path: "user",
+      select: "name email",
+    });
+
+  res.status(200).json({
+    success: true,
+    booking,
   });
 });
 
@@ -125,4 +151,5 @@ export {
   checkRoomBookingAvailability,
   checkBookedDatesOfRoom,
   myBookings,
+  getBookingDetails,
 };
