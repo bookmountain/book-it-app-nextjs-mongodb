@@ -8,6 +8,7 @@ import { clearErrors } from "../../redux/actions/bookingActions";
 const BookingDetails = (props) => {
   const dispatch = useDispatch();
   const { booking, error } = useSelector((state) => state.bookingDetails);
+  const { user } = useSelector((state) => state.loadedUser);
 
   useEffect(() => {
     if (error) {
@@ -15,6 +16,12 @@ const BookingDetails = (props) => {
       dispatch(clearErrors());
     }
   }, [dispatch]);
+
+  const isPaid = !!(
+    booking &&
+    booking.paymentInfo &&
+    booking.paymentInfo.status === "paid"
+  );
 
   return (
     <div className="container">
@@ -48,9 +55,17 @@ const BookingDetails = (props) => {
               </p>
               <hr />
               <h4 className="my-4">Payment Status</h4>
-              <p className="greenColor">
-                <b>Paid</b>
+              <p className={isPaid ? "greenColor" : "redColor"}>
+                <b>{isPaid ? "Paid" : "Not Paid"}</b>
               </p>
+              {user && user.role === "admin" && (
+                <>
+                  <h4 className="my-4">Stripe Payment ID</h4>
+                  <p className="redColor">
+                    <b>{booking.paymentInfo.id}</b>
+                  </p>
+                </>
+              )}
               <h4 className="mt-5 mb-4">Booked Room:</h4>
               <hr />
               <div className="cart-item my-1">

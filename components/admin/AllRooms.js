@@ -2,16 +2,18 @@ import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useRouter } from "next/router";
 import Link from "next/link";
-import { getAdminRooms } from "../../redux/actions/roomActions";
+import { getAdminRooms, deleteRoom } from "../../redux/actions/roomActions";
 import { toast } from "react-toastify";
 import Loader from "../layout/Loader";
 import { clearErrors } from "../../redux/actions/bookingActions";
 import { MDBDataTable } from "mdbreact";
+import { DELETE_ROOM_RESET } from "../../redux/constants/roomConstants";
 
 const AllRooms = (props) => {
   const dispatch = useDispatch();
   const router = useRouter();
   const { rooms, error, loading } = useSelector((state) => state.allRooms);
+  const { isDeleted, error: deleteError } = useSelector((state) => state.room);
 
   useEffect(() => {
     dispatch(getAdminRooms());
@@ -19,7 +21,18 @@ const AllRooms = (props) => {
       toast.error(error);
       dispatch(clearErrors());
     }
-  }, [dispatch]);
+    if (deleteError) {
+      toast.error(deleteError);
+      dispatch(clearErrors());
+    }
+
+    if (isDeleted) {
+      router.push("/admin/rooms");
+      dispatch({
+        type: DELETE_ROOM_RESET,
+      });
+    }
+  }, [dispatch, deleteError, isDeleted]);
 
   const setRooms = () => {
     const data = {
@@ -66,7 +79,10 @@ const AllRooms = (props) => {
                   <i className="fa fa-pencil" />
                 </a>
               </Link>
-              <button className="btn btn-danger mx-2">
+              <button
+                className="btn btn-danger mx-2"
+                onClick={() => deleteRoomHandler(room._id)}
+              >
                 <i className="fa fa-trash" />
               </button>
             </>
@@ -74,6 +90,10 @@ const AllRooms = (props) => {
         });
       });
     return data;
+  };
+
+  const deleteRoomHandler = (id) => {
+    dispatch(deleteRoom(id));
   };
 
   return (

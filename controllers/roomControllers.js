@@ -33,9 +33,7 @@ const addNewRoom = catchAsyncErrors(async (req, res) => {
 
   for (let i = 0; i < images.length; i++) {
     const result = await cloudinary.v2.uploader.upload(images[i], {
-      folder: "bookit/avatars",
-      width: "150",
-      crop: "scale",
+      folder: "bookit/rooms",
     });
 
     imagesLinks.push({
@@ -66,12 +64,33 @@ const getSingleRoom = catchAsyncErrors(async (req, res, next) => {
 });
 
 const updateRoom = catchAsyncErrors(async (req, res, next) => {
-  const room = await Room.findByIdAndUpdate(req.query.id, req.body, {
-    new: true,
-    runValidators: true,
-  });
+  let room = await Room.findById(req.query.id);
+
   if (!room) {
     return next(new ErrorHandler("Room not found with this ID", 404));
+  }
+
+  if (req.body.images) {
+    // Delete images associated with the room
+    for (let i = 0; i < room.images.length; i++) {
+      await cloudinary.v2.uploader.destroy(room.images[i].public_id);
+    }
+
+    let imagesLinks = [];
+    const images = req.body.images;
+
+    for (let i = 0; i < images.length; i++) {
+      const result = await cloudinary.v2.uploader.upload(images[i], {
+        folder: "bookit/rooms",
+      });
+
+      imagesLinks.push({
+        public_id: result.public_id,
+        url: result.secure_url,
+      });
+    }
+
+    req.body.images = imagesLinks;
   }
 
   res.status(200).json({
@@ -80,18 +99,24 @@ const updateRoom = catchAsyncErrors(async (req, res, next) => {
   });
 });
 
+// Delete room   =>   /api/rooms/:id
 const deleteRoom = catchAsyncErrors(async (req, res) => {
-  const room = await Room.findByIdAndDelete(req.query.id);
+  const room = await Room.findById(req.query.id);
+
   if (!room) {
-    return res.status(404).json({
-      success: false,
-      error: "Room not found with this ID",
-    });
+    return next(new ErrorHandler("Room not found with this ID", 404));
   }
+
+  // Delete images associated with the room
+  for (let i = 0; i < room.images.length; i++) {
+    await cloudinary.v2.uploader.destroy(room.images[i].public_id);
+  }
+
+  await room.remove();
 
   res.status(200).json({
     success: true,
-    message: "Room is delete",
+    message: "Room is deleted.",
   });
 });
 

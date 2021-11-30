@@ -4,10 +4,7 @@ import { useRouter } from "next/router";
 import Link from "next/link";
 import { toast } from "react-toastify";
 import ButtonLoader from "../layout/ButtonLoader";
-import {
-  NEW_ROOM_RESET,
-  NEW_ROOM_SUCCESS,
-} from "../../redux/constants/roomConstants";
+import { NEW_ROOM_RESET } from "../../redux/constants/roomConstants";
 import { clearErrors, newRoom } from "../../redux/actions/roomActions";
 
 const NewRoom = (props) => {
