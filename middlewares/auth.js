@@ -10,7 +10,26 @@ const isAuthenticatedUser = catchAsyncErrors(async (req, res, next) => {
   }
 
   req.user = session.user;
+  console.log("req user", req.user);
+
   next();
 });
 
-export { isAuthenticatedUser };
+// Middleware accept a function with 3 arguments (req, res,next)
+
+// Handling user roles
+const authorizeRoles = (...roles) => {
+  return (req, res, next) => {
+    if (!roles.includes(req.user.role)) {
+      return next(
+        new ErrorHandler(
+          `Role(${req.user.role}) is not allowed to access this resource`,
+          403
+        )
+      );
+    }
+    next();
+  };
+};
+
+export { isAuthenticatedUser, authorizeRoles };

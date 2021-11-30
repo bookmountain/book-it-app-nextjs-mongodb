@@ -10,8 +10,10 @@ const Header = (props) => {
   const { user, loading } = useSelector((state) => state.loadedUser);
 
   useEffect(() => {
-    dispatch(loadUser());
-  }, [dispatch]);
+    if (!user) {
+      dispatch(loadUser());
+    }
+  }, [dispatch, user]);
 
   const logoutHandler = () => {
     signOut();
@@ -55,6 +57,14 @@ const Header = (props) => {
                 className="dropdown-menu"
                 aria-labelledby="dropDownMenuButton"
               >
+                {user.role === "admin" && (
+                  <>
+                    <Link href="/admin/rooms">
+                      <a className="dropdown-item">Rooms</a>
+                    </Link>
+                    <hr />
+                  </>
+                )}
                 <Link href="/bookings/me">
                   <a className="dropdown-item">My Bookings</a>
                 </Link>

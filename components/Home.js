@@ -18,11 +18,8 @@ const Home = (props) => {
   page = Number(page);
 
   useEffect(() => {
-    // toast.success("This is success message");
-    // if (error) {
-    //   toast.error("Error occurred.");
-    //   dispatch(clearErrors());
-    // }
+    toast.error(error);
+    dispatch(clearErrors());
   }, []);
 
   const handlePagination = (pageNumber) => {
