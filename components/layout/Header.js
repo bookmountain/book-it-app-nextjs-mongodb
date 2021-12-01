@@ -65,6 +65,9 @@ const Header = (props) => {
                     <Link href="/admin/bookings">
                       <a className="dropdown-item">Bookings</a>
                     </Link>
+                    <Link href="/admin/users">
+                      <a className="dropdown-item">Users</a>
+                    </Link>
                     <hr />
                   </>
                 )}

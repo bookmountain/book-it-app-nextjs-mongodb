@@ -10,7 +10,6 @@ const isAuthenticatedUser = catchAsyncErrors(async (req, res, next) => {
   }
 
   req.user = session.user;
-  console.log("req user", req.user);
 
   next();
 });
