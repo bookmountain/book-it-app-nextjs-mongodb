@@ -177,13 +177,58 @@ const checkReviewAvailability = catchAsyncErrors(async (req, res) => {
   });
 });
 
-// Check all room - ADMIN => /api/admin/rooms
+// Get all room - ADMIN => /api/admin/rooms
 
 const getAllAdminRoom = catchAsyncErrors(async (req, res) => {
   const rooms = await Room.find();
   res.status(200).json({
     success: true,
     rooms,
+  });
+});
+
+// Get all room review - ADMIN => /api/reviews
+
+const getRoomReviews = catchAsyncErrors(async (req, res) => {
+  const room = await Room.findById(req.query.id);
+  res.status(200).json({
+    success: true,
+    reviews: room.reviews,
+  });
+});
+
+// Delete room review - ADMIN => /api/reviews/:id
+
+const deleteReview = catchAsyncErrors(async (req, res) => {
+  const room = await Room.findById(req.query.roomId);
+
+  // Remove reviews
+  const reviews = room.reviews.filter(
+    (review) => review._id.toString() !== req.query.id.toString()
+  );
+
+  console.log("reviews", reviews);
+
+  const numOfReviews = reviews.length;
+
+  const ratings =
+    room.reviews.reduce((acc, item) => item.rating + acc, 0) / numOfReviews;
+
+  await Room.findByIdAndUpdate(
+    req.query.roomId,
+    {
+      reviews,
+      ratings,
+      numOfReviews,
+    },
+    {
+      new: true,
+      runValidators: true,
+    }
+  );
+
+  res.status(200).json({
+    success: true,
   });
 });
 
@@ -196,4 +241,6 @@ export {
   createRoomReview,
   checkReviewAvailability,
   getAllAdminRoom,
+  getRoomReviews,
+  deleteReview,
 };
