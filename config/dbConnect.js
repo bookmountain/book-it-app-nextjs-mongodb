@@ -6,7 +6,7 @@ const dbConnect = () => {
   }
 
   mongoose
-    .connect(process.env.DB_LOCAL_URI)
+    .connect(process.env.DB_URI)
     .then((con) => console.log("Connected to Atlas database."));
 };
 

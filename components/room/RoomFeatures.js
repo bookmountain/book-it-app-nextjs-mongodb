@@ -30,7 +30,7 @@ const RoomFeatures = ({ room }) => {
           className={
             room.internet
               ? "fa fa-check text-success"
-              : "fa fa-times text-dander"
+              : "fa fa-times text-danger"
           }
           aria-hidden="true"
         />
@@ -41,11 +41,11 @@ const RoomFeatures = ({ room }) => {
           className={
             room.airConditioned
               ? "fa fa-check text-success"
-              : "fa fa-times text-dander"
+              : "fa fa-times text-danger"
           }
           aria-hidden="true"
         />
-        <p>Air Condition</p>
+        <p>Air Conditioned</p>
       </div>
       <div className="room-feature">
         <i

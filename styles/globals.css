@@ -370,6 +370,10 @@ nav {
     color: #f74f77;
 }
 
+.w-full {
+    width: 100%;
+}
+
 /* Footer */
 footer {
     margin-top: 6rem;

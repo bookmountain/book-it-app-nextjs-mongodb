@@ -13,8 +13,6 @@ class ApiFeature {
           },
         }
       : {};
-
-    console.log(location);
     this.query = this.query.find({ ...location });
     return this;
   }
