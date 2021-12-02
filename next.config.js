@@ -24,7 +24,7 @@ module.exports = {
     SMTP_PASSWORD: "7e00c5d94cd4b1",
     SMTP_FROM_NAME: "BookIT",
     SMTP_FROM_EMAIL: "noreply@bookit.com",
-    NEXTAUTH_URL: "https://bookit.bookmountain.vercel.app",,
+    NEXTAUTH_URL: "https://bookit.sam.vercel.app",
   },
 
   images: {
